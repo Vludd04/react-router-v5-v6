@@ -1,17 +1,5 @@
 import React from "react";
-import { Link, Redirect, Route, Switch, useParams } from "react-router-dom";
-
-const App = () => {
-  return (
-    <Switch>
-      <Route exact path="/users/:userId?/:page?" component={UsersLayout} />
-      <Route exact path="/" component={HomePage} />
-      <Redirect to="/" />
-    </Switch>
-  );
-};
-
-export default App;
+import { Link, Navigate, useParams, useRoutes } from "react-router-dom";
 
 const HomePage = () => {
   return (
@@ -21,22 +9,6 @@ const HomePage = () => {
       <h1>MainPage</h1>
     </>
   );
-};
-
-const UsersLayout = () => {
-  const { userId, page } = useParams();
-
-  if (userId && page === "profile") {
-    return <UserPage />;
-  }
-
-  if (userId && page === "edit") {
-    return <UserEditPage />;
-  }
-
-  if (!userId) {
-    return <UsersListPage />;
-  }
 };
 
 const UsersListPage = () => {
@@ -106,3 +78,42 @@ const UserEditPage = () => {
     </>
   );
 };
+
+const routes = [
+  {
+    path: "/",
+    element: <HomePage />,
+  },
+  {
+    path: "users",
+    children: [
+      {
+        path: "",
+        element: <UsersListPage />,
+      },
+      {
+        path: ":userId",
+        element: <Navigate to="profile" />,
+      },
+      {
+        path: ":userId/profile",
+        element: <UserPage />,
+      },
+      {
+        path: ":userId/edit",
+        element: <UserEditPage />,
+      },
+    ],
+  },
+  {
+    path: "*",
+    element: <Navigate to="/" />,
+  },
+];
+
+function App() {
+  const elements = useRoutes(routes);
+  return elements;
+}
+
+export default App;
